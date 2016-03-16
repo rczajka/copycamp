@@ -1,0 +1,6 @@
+[program:cc]
+command={path_to_virtualenv}/bin/gunicorn
+        --bind unix:/tmp/cc.socket
+        cc:main
+directory={application_directory}
+

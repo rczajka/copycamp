@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CopyCamp 2015 Timer</title>
+    <style>
+        html, body, #timer-state,#timer-inner {margin: 0; padding: 0; height:100%}
+        body {
+            font-size: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+	#timer-state {
+		display: table;
+		width: 100%;
+	}
+	#timer-inner {
+		display: table-cell;
+		vertical-align: middle;
+	}
+	@media screen and (max-aspect-ratio: 3/1) {
+            body {
+                font-size: 30vw;
+            }
+        }
+    </style>
+</head>
+<body><div id="timer-state"></div>
+<script>
+    function update(text) {
+        /* set / start / pause */
+        var timer = JSON.parse(text);
+        var ts = document.getElementById('timer-state');
+        if (timer.start) {
+            tseconds = timer.set - (timer.time - timer.start);
+            color = tseconds < 1 ? 'red' : tseconds >= 60 ? 'green' : tseconds & 1 ? 'yellow' : 'green';
+        }
+        else {
+            tseconds = timer.set;
+            color = tseconds < 1 ? 'red' : tseconds >= 60 ? 'green' : 'yellow';
+        }
+
+        var sseconds= tseconds;
+        if (sseconds < 0) {
+            sseconds = -sseconds + 1;
+        }
+        minutes = Math.floor(sseconds / 60);
+        seconds = Math.floor(sseconds % 60);
+        if (seconds < 10) seconds = "0" + seconds;
+        ts.innerHTML = '<div id="timer-inner" style="background-color: ' + color + '">' + minutes + ':' + seconds + '</div>';
+
+        if (timer.start)
+            return 20 + 1000 * ((tseconds + 100000) % 1);
+        else return 1000;
+    }
+    function get_update() {
+         var xmlhttp = new XMLHttpRequest();
+         xmlhttp.onreadystatechange = function(){
+             if (xmlhttp.readyState == 4 ) {
+                 if (xmlhttp.status == 200) {
+                    timeout = update(xmlhttp.responseText);
+                    setTimeout(get_update, timeout);
+                 }
+                 else {
+                     setTimeout(get_update, 1000);
+                 }
+             }
+         }
+         xmlhttp.open("GET", '/state?tag=timer', true);
+         xmlhttp.send();
+    }
+    get_update();
+
+</script>
+</body>
+</html>

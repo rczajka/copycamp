@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CopyCamp 2015</title>
+    <style>
+.file-o {color: #888;}
+.file-k {color: green;}
+
+
+#timer, #firefox, #display {
+  border: 1px dotted black;
+  padding: 1em;
+}
+iframe {
+  width: 100%;
+}
+input[type=text] {
+  display: block;
+}
+form {
+  display: inline;
+}
+
+table {
+  background: #ddd;
+  border-spacing: 0;
+}
+tr:nth-child(even) {
+  background: #eee;
+}
+
+@media (min-width: 700px) {
+  #timer, #firefox {
+    display: inline-block;
+    width: 40%;
+    min-width: 300px;
+    vertical-align: top;
+  }
+}
+@media (min-width: 1000px) {
+  #timer, #firefox, #display {
+    width: 400px;
+    clear: right;
+    float: right;
+  }
+  #presentations {
+    width: 400px;
+  }
+}
+    </style>
+</head>
+<body>
+    <section id="timer">
+        <h1>Timer</h1>
+
+        <iframe height='100' src="/timer"></iframe>
+
+        <form method='post' action='/timer-set'>
+            <input type='text' name="set" value="10">
+            <button type='submit'>STOP</button>
+        </form>
+
+        <form method='post' action='/timer-start'>
+            <button type='submit'>Start!</button>
+        </form>
+
+        <form method='post' action='/timer-pause'>
+            <button type='submit'>Pause</button>
+        </form>
+    </section>
+
+    <section id="firefox">
+        <h1>Firefox</h1>
+
+        <div id="firefox-state"></div>
+
+        <form method='post' action='/firefox-show'>
+            <button type='submit'>Show</button>
+        </form>
+
+        <form method='post' action='/firefox-hide'>
+            <button type='submit'>Hide</button>
+        </form>
+
+        <form method='post' action='/firefox-restart'>
+            <button type='submit'>Start</button>
+        </form>
+
+    </section>
+
+    <section id="display">
+	<h1>display</h1>
+        <form method='post' action='/lvds'>
+            <button type='submit'>LVDS</button>
+        </form>
+        <form method='post' action='/vga'>
+            <button type='submit'>VGA</button>
+        </form>
+    </section>
+
+    <section id="presentations">
+        <h1>Presentations</h1>
+
+        <div id="presentations-state"></div>
+        <div id="presentations-list"></div>
+
+        <!--form method='post' action='/presentations-refresh'>
+            <button type='submit'>Refresh</button>
+        </form-->
+
+    </section>
+
+
+<script>
+
+
+    function refresh() {
+         var xmlhttp = new XMLHttpRequest();
+         xmlhttp.onreadystatechange = function(){
+             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                 var t = "<table>";
+                 JSON.parse(xmlhttp.responseText).forEach(function(e) {
+                     t += "<tr class='file-" + e[2] +"'><td>";
+                     for (var i=0;i<4*e[0];++i) t+="&nbsp;";
+                     t += e[1] + "</td><td>";
+                     if (e[2] == 'k') {
+                         t += "<form method='post' action='/presentations-run'><input type='hidden' name='path' value='" + e[3] +"'><button type='submit'>run</button></form>";
+                     }
+                     t += "</td></tr>";
+                 });
+                 t += "<table>";
+                 document.getElementById('presentations-list').innerHTML = t;
+             }
+         }
+         xmlhttp.open("GET", '/presentations-refresh', true);
+         xmlhttp.send();
+    }
+    refresh();
+</script>
+</body>
+</html>

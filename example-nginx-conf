@@ -1,0 +1,16 @@
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root {application_dir}/static;
+	location / {
+		try_files $uri $uri/ @gunicorn;
+	}
+	location @gunicorn {
+		proxy_pass http://unix:/tmp/cc.socket;
+	}
+
+	access_log off;
+	index index.html;
+}
+
